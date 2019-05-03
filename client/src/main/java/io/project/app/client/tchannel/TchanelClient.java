@@ -25,7 +25,7 @@ public class TchanelClient {
             SubChannel subChannel = client.makeSubChannel("server");
 
             final long start = System.currentTimeMillis();
-            final CountDownLatch done = new CountDownLatch(1000);
+            final CountDownLatch done = new CountDownLatch(100);
 
             TFutureCallback<RawResponse> callback = (RawResponse response) -> {
                 // when using callback, resource associated with response is released by the the TChannel library
@@ -43,7 +43,7 @@ public class TchanelClient {
             };
 
             
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < 100; i++) {
                 RawRequest request = new RawRequest.Builder("server", "dataserver")
                         .setHeader("Data Request")
                         .setBody(model.toString())

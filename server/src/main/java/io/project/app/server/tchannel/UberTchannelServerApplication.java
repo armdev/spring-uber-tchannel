@@ -21,7 +21,7 @@ public class UberTchannelServerApplication {
     public static void main(String[] args) {
         final SpringApplication application = new SpringApplication(UberTchannelServerApplication.class);
         application.setBannerMode(Banner.Mode.CONSOLE);
-        application.setWebApplicationType(WebApplicationType.SERVLET);
+        application.setWebApplicationType(WebApplicationType.REACTIVE);
 
         application.run(args);
     }
