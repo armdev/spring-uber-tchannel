@@ -26,7 +26,7 @@ public class DataResource {
     @PostMapping(path = "/send") 
     @CrossOrigin
     public ResponseEntity<?> post(
-            @Valid @RequestBody(required = true) UserModel userModel
+            @Valid @RequestBody(required = true) ImportantInfo userModel
     ) {
         tchanelClient.sendData(userModel);
         return ResponseEntity.status(HttpStatus.OK).body("Data Sent");

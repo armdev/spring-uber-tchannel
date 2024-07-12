@@ -1,5 +1,6 @@
 package io.project.app.client.tchannel;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.uber.tchannel.api.SubChannel;
 import com.uber.tchannel.api.TChannel;
 import com.uber.tchannel.api.TFuture;
@@ -7,26 +8,23 @@ import com.uber.tchannel.api.handlers.TFutureCallback;
 import com.uber.tchannel.messages.RawRequest;
 import com.uber.tchannel.messages.RawResponse;
 import java.net.InetAddress;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class TchanelClient {
 
-    @Async
-    @SuppressWarnings("empty-statement")
-    public void sendData(UserModel model) {
+    public void sendData(ImportantInfo model) {
         try {
             TChannel client = createClient();
 
             SubChannel subChannel = client.makeSubChannel("server");
 
             final long start = System.currentTimeMillis();
-            final CountDownLatch done = new CountDownLatch(100);
-
+            final CountDownLatch done = new CountDownLatch(1);
             TFutureCallback<RawResponse> callback = (RawResponse response) -> {
                 // when using callback, resource associated with response is released by the the TChannel library
                 if (!response.isError()) {
@@ -38,23 +36,21 @@ public class TchanelClient {
                     log.info(String.format("Got error response: %s",
                             response.toString()));
                 }
-
                 done.countDown();
             };
 
-            
-            for (int i = 0; i < 100; i++) {
-                RawRequest request = new RawRequest.Builder("server", "dataserver")
-                        .setHeader("Data Request")
-                        .setBody(model.toString())
-                        .build();
+            UUID transactionId = UuidCreator.getTimeOrderedEpoch();
 
-                TFuture<RawResponse> future = subChannel.send(request,
-                        InetAddress.getByName("127.0.0.1"),
-                        8888
-                );
-                future.addCallback(callback);
-            }
+            RawRequest request = new RawRequest.Builder("server", "dataserver")
+                    .setHeader("id:" + transactionId.toString())
+                    .setBody(model.toString())
+                    .build();
+
+            TFuture<RawResponse> future = subChannel.send(request,
+                    InetAddress.getByName("127.0.0.1"),
+                    8888
+            );
+            future.addCallback(callback);
             done.await();
             log.info(String.format("\nTime cost: %dms", System.currentTimeMillis() - start));
             client.shutdown(false);

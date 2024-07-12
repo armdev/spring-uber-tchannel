@@ -3,7 +3,7 @@ package io.project.app.server.tchannel;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -12,15 +12,10 @@ import lombok.ToString;
  */
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode
 @ToString
-public class UserModel implements Serializable{
+@NoArgsConstructor
+public class ImportantInfo implements Serializable {
 
-    private String email;
-    private String password;
-    private Integer age;
-
-  
-   
+    private String message;
 
 }

@@ -37,10 +37,12 @@ public class TchannelServer {
                         if (request.getBody() != null) {
                             log.info("Request Body " + request.getBody());
                         }
+                        //  String get = request.getTransportHeaders().get("id");
+
                         return new RawResponse.Builder(request)
                                 .setTransportHeaders(request.getTransportHeaders())
                                 .setHeader("Response")
-                                .setBody("Done it.")
+                                .setBody("Your id is " + request.getBody())
                                 .build();
                     }
                 });
