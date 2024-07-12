@@ -6,7 +6,7 @@ Run two projects in the localhost
 
 Access:
 
-http://localhost:2019/swagger-ui.html#/data-resource/postUsingPOST
+http://localhost:2019/swagger-ui.html
 
 and send data to the server .
 
