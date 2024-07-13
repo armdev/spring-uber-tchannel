@@ -1,0 +1,131 @@
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  security:
+    enabled: false
+  server:
+    port: 2029
+  tracing:
+    sampling:
+      probability: 1.0
+  endpoint:
+    health:
+      enabled: true
+      show-details: ALWAYS
+    probes:
+      enabled: true
+  endpoints:
+    jmx:
+      exposure:
+       include: '*'
+    web:
+     exposure:
+      include: '*'
+    cors:
+      allowed-origins: 'true'
+      enabled-by-default: 'false'
+      
+server:
+  tomcat:
+    accept-count: 5000
+    connection-timeout: 50000
+    keep-alive-timeout: 50000   
+    max-connections: 3000
+    max-http-form-post-size: -1
+    threads:        
+      max: 2000
+      min-spare: 20  
+  shutdown: GRACEFUL
+  http2:
+     enabled: true
+  port: 2019
+  servlet:
+      session:
+        timeout: 30m
+  compression:
+      enabled: true
+      mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+      min-response-size: 1024  
+      
+spring:
+  thread:
+    virtual:
+      enabled: true
+  main:
+    allow-circular-references: false
+    lazy-initialization: false
+  application:
+    name: tchannel-client
+    
+  profiles:
+    active:
+      ${PROFILE}      
+     
+  cloud:
+    discovery:
+       service-id: tchannel-client
+       enabled: true
+      
+  datasource:
+    hikari:
+      # Connection pool settings for HikariCP
+      connection-timeout: 50000           # Maximum time that a client will wait for a connection from the pool (in milliseconds)
+      idle-timeout: 60000                 # Maximum time that a connection is allowed to sit idle in the pool (in milliseconds)
+      max-lifetime: 180000                 # Maximum lifetime of a connection in the pool (in milliseconds)
+      maximum-pool-size: 200              # Maximum number of connections that can be maintained in the pool
+      minimum-idle: 5                     # Minimum number of idle connections that HikariCP tries to maintain in the pool
+      pool-name: carelake                 # Name of the connection pool
+
+    tomcat:
+      # Connection pool settings for Tomcat JDBC
+      initial-size: 4                     # Initial number of connections that are created when the pool is started
+      max-wait: 80000                     # The maximum time (in milliseconds) that the pool will wait for a connection to be returned
+      max-active: 800                     # The maximum number of active connections that can be allocated from the pool
+      max-idle: 100                       # The maximum number of connections that can remain idle in the pool
+      min-idle: 30                        # The minimum number of idle connections that Tomcat JDBC tries to maintain in the pool
+      remove-abandoned: true              # Whether to remove abandoned connections (true/false)
+      remove-abandoned-timeout: 800       # Timeout (in seconds) before a connection is considered abandoned
+      time-between-eviction-runs-millis: 3400000  # The time between runs of the idle connection eviction thread (in milliseconds)
+      min-evictable-idle-time-millis: 5500000    # The minimum time a connection may sit idle in the pool before it is eligible for eviction (in milliseconds)
+      default-auto-commit: false          # Default auto-commit behavior for connections obtained from the pool
+
+    url: '${POSTGRES_URI}'  # JDBC URL for connecting to the database
+    username: '${POSTGRES_USER}'                             # Database username
+    password: '${POSTGRES_PASSWORD}'                         # Database password
+    test-while-idle: true                # Test connections while they are idle
+    validation-query: SELECT 1           # SQL query used to validate connections
+    driver-class-name: org.postgresql.Driver  # Fully qualified name of the JDBC driver class
+
+  jpa:
+    show-sql: false                      # Whether to show SQL statements in the console
+    database: POSTGRESQL                 # Database dialect to use (e.g., POSTGRESQL, H2, MYSQL)
+    hibernate:
+      ddl-auto: update                  # Hibernate DDL strategy (e.g., create, update, validate, none)
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy  # Naming strategy for Hibernate
+      dialect: org.hibernate.dialect.PostgreSQL15Dialect         # Database dialect for Hibernate
+      query:
+        plan-cache-max-size: 16000        # Maximum size of the query plan cache
+        plan-parameter-metadata-max-size: 16000  # Maximum size of the query plan parameter metadata cache
+    properties:
+      jakarta:
+       persistence:
+        sharedCache:
+          mode: ALL
+      hibernate:
+        temp:
+          use-jdbc-metadata-defaults: false  # Whether to use JDBC metadata defaults for handling temporal types
+
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+  sql:
+    init:
+      platform: POSTGRESQL
+
+logging:
+    level:
+      root: INFO
+      io.project.app: INFO

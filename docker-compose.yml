@@ -1,0 +1,107 @@
+services:
+    
+  postgresql-master:
+    image: registry.gitlab.com/armdev/dockers/bitnami_postgres16
+    container_name: postgresql-master
+    ports:
+      - '5432'
+    volumes:
+      - ~/volumes/data/pgmaster/data:/bitnami/postgresql
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:rw
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=master
+      - POSTGRESQL_REPLICATION_USER=master_user
+      - POSTGRESQL_REPLICATION_PASSWORD=PkAX16o639vwj5u
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=PkAX16o639vwj5u
+      - POSTGRESQL_DATABASE=decentralized_identifier
+      - ALLOW_EMPTY_PASSWORD=no      
+    networks:
+      - platform
+      
+  postgresql-slave:
+    image: registry.gitlab.com/armdev/dockers/bitnami_postgres16
+    container_name: postgresql-slave
+    ports:
+      - '5432'
+    depends_on:
+      - postgresql-master
+    environment:
+      - POSTGRESQL_REPLICATION_MODE=slave
+      - POSTGRESQL_REPLICATION_USER=master_user
+      - POSTGRESQL_REPLICATION_PASSWORD=PkAX16o639vwj5u
+      - POSTGRESQL_MASTER_HOST=postgresql-master
+      - POSTGRESQL_PASSWORD=PkAX16o639vwj5u
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+      - ALLOW_EMPTY_PASSWORD=no
+    volumes:
+      - ~/volumes/data/pgslave/data:/bitnami/postgresql
+      - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:rw
+      
+    networks:
+      - platform
+      
+  pgadmin:
+    image: registry.gitlab.com/armdev/dockers/pgadmin:4
+    container_name: pgadmin4
+    restart: always
+    ports:
+      - "127.0.0.1:5050:80"
+    depends_on:
+      - postgresql-master
+      - postgresql-slave
+ 
+    links:
+      - postgresql-master
+      - postgresql-slave
+     
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ~/volumes/data/pgbackup/_data/pgadmin:/var/lib/pgadmin
+    networks:
+      - platform
+      
+      
+  tchannel-client:
+    image: tchannel-client  
+    build: ./tchannel-client
+    env_file: ./tchannel-client/.env
+    container_name: tchannel-client
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+
+    ports:
+      - '2019:2019'
+      - '2029:2029'
+      - '8888'
+    networks:
+      - platform
+
+
+  tchannel-server:
+    image: tchannel-server  
+    build: ./tchannel-server
+    env_file: ./tchannel-server/.env
+    container_name: tchannel-server
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    ports:
+      - '2030:2030'
+      - '2040:2040'
+      - '8888'
+    networks:
+      - platform
+
+networks:
+  platform:
+    driver: bridge
+    ipam:
+      driver: default
