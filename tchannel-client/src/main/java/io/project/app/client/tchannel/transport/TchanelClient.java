@@ -1,4 +1,4 @@
-package io.project.app.client.tchannel;
+package io.project.app.client.tchannel.transport;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.uber.tchannel.api.SubChannel;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TchanelClient {
 
-    public void sendData(ImportantInfo model) {
+    public void sendData(String model) {
         try {
             TChannel client = createClient();
 
@@ -26,7 +26,7 @@ public class TchanelClient {
             final long start = System.currentTimeMillis();
             final CountDownLatch done = new CountDownLatch(1);
             TFutureCallback<RawResponse> callback = (RawResponse response) -> {
-                // when using callback, resource associated with response is released by the the TChannel library
+
                 if (!response.isError()) {
                     log.info(String.format("Response received: response code: %s, header: %s, body: %s",
                             response.getResponseCode(),
@@ -43,7 +43,7 @@ public class TchanelClient {
 
             RawRequest request = new RawRequest.Builder("tchannel-server", "dataserver")
                     .setHeader("id:" + transactionId.toString())
-                    .setBody(model.toString())
+                    .setBody(model)
                     .build();
 
             TFuture<RawResponse> future = subChannel.send(request,
@@ -55,19 +55,20 @@ public class TchanelClient {
             log.info(String.format("\nTime cost: %dms", System.currentTimeMillis() - start));
             client.shutdown(false);
         } catch (Exception ex) {
-            ex.getLocalizedMessage();
-        };
+            log.error("ERROR: " + ex.getLocalizedMessage());
+
+        }
 
     }
 
     protected static TChannel createClient() throws Exception {
 
         // create TChannel
-        TChannel tchannel = new TChannel.Builder("client")
+        TChannel tchannel = new TChannel.Builder("tchannel-client")
                 .build();
 
         // create sub channel to talk to server
-        tchannel.makeSubChannel("server");
+        tchannel.makeSubChannel("tchannel-server");
         return tchannel;
     }
 

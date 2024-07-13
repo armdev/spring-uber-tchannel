@@ -1,4 +1,4 @@
-package io.project.app.server.tchannel;
+package io.project.app.server.models;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;

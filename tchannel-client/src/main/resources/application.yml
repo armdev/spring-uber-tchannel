@@ -54,6 +54,7 @@ spring:
   thread:
     virtual:
       enabled: true
+   
   main:
     allow-circular-references: false
     lazy-initialization: false
